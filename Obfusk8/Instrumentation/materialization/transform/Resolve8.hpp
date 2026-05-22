@@ -292,8 +292,9 @@ NOOPT
                     return nullptr;
                 }
     
-                __forceinline void* GetProcAddressH(HMODULE hMod, uint32_t funcHash)
+                __forceinline void* GetProcAddressH(HMODULE hMod, uint32_t funcHash, uint32_t depth = 0)
                 {
+                    if (depth > 6) return nullptr;
                     if (!hMod) return nullptr;
                     uintptr_t pBase = (uintptr_t)hMod;
                     int32_t e_lfanew = *PtrAdd < int32_t > ((void *) pBase, calc_offset_aes(0x3C));
@@ -332,13 +333,220 @@ NOOPT
                                 ordPtr = VALID_OBF_MBA_ADD(pBase, VALID_OBF_MBA_ADD((uintptr_t)addrOfOrdinals, (uintptr_t)(i * 2)));
                                 if (ordPtr) {
                                     uint16_t ordinal = *(uint16_t *) ordPtr;
-                                    if (!ordinal)
-                                        return nullptr;
                                     uintptr_t funcRvaPtr = VALID_OBF_MBA_ADD(pBase, VALID_OBF_MBA_ADD((uintptr_t)addrOfFunctions, (uintptr_t)(ordinal * 4)));
                                     if (funcRvaPtr) {
                                         uint32_t funcRva = *(uint32_t * )funcRvaPtr;
-                                        if (funcRva >= expRva && funcRva < VALID_OBF_MBA_ADD(expRva, expSize))
+                                        if (funcRva >= expRva && funcRva < VALID_OBF_MBA_ADD(expRva, expSize)) {
+                                            const char* forwarder = (const char*)VALID_OBF_MBA_ADD(pBase, (uintptr_t)funcRva);
+                                            if (!forwarder || !*forwarder) return nullptr;
+
+                                            const char* sep = nullptr;
+                                            for (const char* p = forwarder; *p; ++p) {
+                                                if (*p == '.' || *p == '!') sep = p;
+                                            }
+                                            if (!sep || sep == forwarder || !sep[1]) return nullptr;
+
+                                            char dllName[96] = { 0 };
+                                            size_t dllLen = (size_t)(sep - forwarder);
+                                            if (dllLen == 0 || dllLen >= sizeof(dllName) - 5) return nullptr;
+
+                                            for (size_t j = 0; j < dllLen; ++j) {
+                                                char c = forwarder[j];
+                                                if (c >= 'a' && c <= 'z') c = (char)VALID_OBF_MBA_SUB((int)c, 0x20);
+                                                dllName[j] = c;
+                                            }
+                                            dllName[dllLen] = '\0';
+
+                                            bool hasDllExt = false;
+                                            if (dllLen >= 4) {
+                                                char c0 = dllName[dllLen - 4];
+                                                char c1 = dllName[dllLen - 3];
+                                                char c2 = dllName[dllLen - 2];
+                                                char c3 = dllName[dllLen - 1];
+                                                hasDllExt =
+                                                    (c0 == '.') &&
+                                                    (c1 == 'D' || c1 == 'd') &&
+                                                    (c2 == 'L' || c2 == 'l') &&
+                                                    (c3 == 'L' || c3 == 'l');
+                                            }
+                                            if (!hasDllExt) {
+                                                dllName[dllLen++] = '.';
+                                                dllName[dllLen++] = 'D';
+                                                dllName[dllLen++] = 'L';
+                                                dllName[dllLen++] = 'L';
+                                                dllName[dllLen] = '\0';
+                                            }
+
+                                            HMODULE fwdMod = GetModuleHandleH(runtime_hash_aes(dllName));
+                                            if (!fwdMod) {
+                                                fwdMod = GetModuleHandleH_sys(runtime_hash_aes(dllName));
+                                            }
+                                            if (!fwdMod) {
+                                                HMODULE hKernel32 = GetModuleHandleH(runtime_hash_aes("KERNEL32.DLL"));
+                                                if (!hKernel32) {
+                                                    hKernel32 = GetModuleHandleH_sys(runtime_hash_aes("KERNEL32.DLL"));
+                                                }
+
+                                                if (hKernel32) {
+                                                    using LoadLibraryA_t = HMODULE(WINAPI*)(LPCSTR);
+                                                    LoadLibraryA_t pLoadLibraryA = reinterpret_cast<LoadLibraryA_t>(
+                                                        GetProcAddressH(hKernel32, runtime_hash_aes("LoadLibraryA"), depth + 1)
+                                                    );
+                                                    if (!pLoadLibraryA) {
+                                                        pLoadLibraryA = reinterpret_cast<LoadLibraryA_t>(
+                                                            GetProcAddressH_sys(hKernel32, runtime_hash_aes("LoadLibraryA"))
+                                                        );
+                                                    }
+                                                    if (pLoadLibraryA) {
+                                                        fwdMod = pLoadLibraryA(dllName);
+                                                    }
+                                                }
+                                            }
+                                            if (!fwdMod) return nullptr;
+
+                                            const char* fwdApi = sep + 1;
+                                            if (!fwdApi || !*fwdApi) return nullptr;
+
+                                            if (*fwdApi == '#') {
+                                                uint32_t ord = 0;
+                                                for (const char* p = fwdApi + 1; *p; ++p) {
+                                                    if (*p < '0' || *p > '9') return nullptr;
+                                                    ord = (ord * 10U) + (uint32_t)(*p - '0');
+                                                }
+                                                if (ord == 0) return nullptr;
+
+                                                uintptr_t fBase = (uintptr_t)fwdMod;
+                                                int32_t fLfanew = *PtrAdd<int32_t>((void*)fBase, calc_offset_aes(0x3C));
+                                                uintptr_t fNtHeaders = VALID_OBF_MBA_ADD(fBase, (uintptr_t)fLfanew);
+                                                #if defined(_WIN64)
+                                                    uint32_t fExpRva = *PtrAdd<uint32_t>((void*)fNtHeaders, calc_offset_aes(0x88));
+                                                    uint32_t fExpSize = *PtrAdd<uint32_t>((void*)fNtHeaders, calc_offset_aes(0x8C));
+                                                #else
+                                                    uint32_t fExpRva = *PtrAdd<uint32_t>((void*)fNtHeaders, calc_offset_aes(0x78));
+                                                    uint32_t fExpSize = *PtrAdd<uint32_t>((void*)fNtHeaders, calc_offset_aes(0x7C));
+                                                #endif
+                                                if (fExpRva == 0) return nullptr;
+
+                                                uintptr_t fExp = VALID_OBF_MBA_ADD(fBase, (uintptr_t)fExpRva);
+                                                uint32_t fOrdBase = *PtrAdd<uint32_t>((void*)fExp, calc_offset_aes(0x10));
+                                                uint32_t fNumberOfFunctions = *PtrAdd<uint32_t>((void*)fExp, calc_offset_aes(0x14));
+                                                uint32_t fAddrOfFunctions = *PtrAdd<uint32_t>((void*)fExp, calc_offset_aes(0x1C));
+
+                                                if (ord < fOrdBase) return nullptr;
+                                                uint32_t fIndex = ord - fOrdBase;
+                                                if (fIndex >= fNumberOfFunctions) return nullptr;
+
+                                                uintptr_t fFuncRvaPtr = VALID_OBF_MBA_ADD(
+                                                    fBase,
+                                                    VALID_OBF_MBA_ADD((uintptr_t)fAddrOfFunctions, (uintptr_t)(fIndex * 4))
+                                                );
+                                                if (!fFuncRvaPtr) return nullptr;
+
+                                                uint32_t fFuncRva = *(uint32_t*)fFuncRvaPtr;
+                                                if (!fFuncRva) return nullptr;
+
+                                                if (fFuncRva >= fExpRva && fFuncRva < VALID_OBF_MBA_ADD(fExpRva, fExpSize)) {
+                                                    const char* nestedForwarder = (const char*)VALID_OBF_MBA_ADD(fBase, (uintptr_t)fFuncRva);
+                                                    if (!nestedForwarder || !*nestedForwarder) return nullptr;
+
+                                                    const char* nestedSep = nullptr;
+                                                    for (const char* p = nestedForwarder; *p; ++p) {
+                                                        if (*p == '.' || *p == '!') nestedSep = p;
+                                                    }
+                                                    if (!nestedSep || nestedSep == nestedForwarder || !nestedSep[1]) return nullptr;
+
+                                                    char nestedDll[96] = { 0 };
+                                                    size_t nestedDllLen = (size_t)(nestedSep - nestedForwarder);
+                                                    if (nestedDllLen == 0 || nestedDllLen >= sizeof(nestedDll) - 5) return nullptr;
+
+                                                    for (size_t j = 0; j < nestedDllLen; ++j) {
+                                                        char c = nestedForwarder[j];
+                                                        if (c >= 'a' && c <= 'z') c = (char)VALID_OBF_MBA_SUB((int)c, 0x20);
+                                                        nestedDll[j] = c;
+                                                    }
+                                                    nestedDll[nestedDllLen] = '\0';
+
+                                                    bool nestedHasDllExt = false;
+                                                    if (nestedDllLen >= 4) {
+                                                        char c0 = nestedDll[nestedDllLen - 4];
+                                                        char c1 = nestedDll[nestedDllLen - 3];
+                                                        char c2 = nestedDll[nestedDllLen - 2];
+                                                        char c3 = nestedDll[nestedDllLen - 1];
+                                                        nestedHasDllExt =
+                                                            (c0 == '.') &&
+                                                            (c1 == 'D' || c1 == 'd') &&
+                                                            (c2 == 'L' || c2 == 'l') &&
+                                                            (c3 == 'L' || c3 == 'l');
+                                                    }
+                                                    if (!nestedHasDllExt) {
+                                                        nestedDll[nestedDllLen++] = '.';
+                                                        nestedDll[nestedDllLen++] = 'D';
+                                                        nestedDll[nestedDllLen++] = 'L';
+                                                        nestedDll[nestedDllLen++] = 'L';
+                                                        nestedDll[nestedDllLen] = '\0';
+                                                    }
+
+                                                    HMODULE nestedMod = GetModuleHandleH(runtime_hash_aes(nestedDll));
+                                                    if (!nestedMod) {
+                                                        nestedMod = GetModuleHandleH_sys(runtime_hash_aes(nestedDll));
+                                                    }
+                                                    if (!nestedMod) return nullptr;
+
+                                                    const char* nestedApi = nestedSep + 1;
+                                                    if (!nestedApi || !*nestedApi || *nestedApi == '#') return nullptr;
+
+                                                    return GetProcAddressH(nestedMod, runtime_hash_aes(nestedApi), depth + 1);
+                                                }
+
+                                                return (void*)VALID_OBF_MBA_ADD(fBase, (uintptr_t)fFuncRva);
+                                            }
+
+                                            uint32_t fwdHash = runtime_hash_aes(fwdApi);
+                                            void* resolvedFwd = GetProcAddressH(fwdMod, fwdHash, depth + 1);
+                                            if (resolvedFwd) return resolvedFwd;
+
+                                            bool isApiSetContract =
+                                                ((dllName[0] == 'A' || dllName[0] == 'a') &&
+                                                 (dllName[1] == 'P' || dllName[1] == 'p') &&
+                                                 (dllName[2] == 'I' || dllName[2] == 'i') &&
+                                                 dllName[3] == '-') ||
+                                                ((dllName[0] == 'E' || dllName[0] == 'e') &&
+                                                 (dllName[1] == 'X' || dllName[1] == 'x') &&
+                                                 (dllName[2] == 'T' || dllName[2] == 't') &&
+                                                 dllName[3] == '-');
+
+                                            if (isApiSetContract || fwdMod == hMod) {
+                                                HMODULE hKernelBase = GetModuleHandleH(runtime_hash_aes("KERNELBASE.DLL"));
+                                                if (!hKernelBase) {
+                                                    hKernelBase = GetModuleHandleH_sys(runtime_hash_aes("KERNELBASE.DLL"));
+                                                }
+                                                if (hKernelBase && hKernelBase != fwdMod) {
+                                                    resolvedFwd = GetProcAddressH(hKernelBase, fwdHash, depth + 1);
+                                                    if (resolvedFwd) return resolvedFwd;
+                                                }
+
+                                                PPEB_K8 scanPeb = reinterpret_cast<PPEB_K8>(GetPEB());
+                                                if (scanPeb && scanPeb->Ldr) {
+                                                    LIST_ENTRY* scanHead = &scanPeb->Ldr->InMemoryOrderModuleList;
+                                                    LIST_ENTRY* scanCurr = scanHead->Flink;
+
+                                                    while (scanCurr != scanHead) {
+                                                        LDR_DATA_TABLE_ENTRY_K8* scanEntry =
+                                                            CONTAINING_RECORD(scanCurr, LDR_DATA_TABLE_ENTRY_K8, InMemoryOrderLinks);
+                                                        if (scanEntry && scanEntry->DllBase) {
+                                                            HMODULE scanMod = (HMODULE)scanEntry->DllBase;
+                                                            if (scanMod != hMod && scanMod != fwdMod) {
+                                                                resolvedFwd = GetProcAddressH(scanMod, fwdHash, depth + 1);
+                                                                if (resolvedFwd) return resolvedFwd;
+                                                            }
+                                                        }
+                                                        scanCurr = scanCurr->Flink;
+                                                    }
+                                                }
+                                            }
+
                                             return nullptr;
+                                        }
                                         return ((void *)VALID_OBF_MBA_ADD(pBase, (uintptr_t)funcRva));
                                     } else
                                         return nullptr;
