@@ -14,6 +14,9 @@
     #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 
+// boring warning called C4325
+#pragma warning(disable:4325)
+
 #include <windows.h>
 #include <string>
 #include <type_traits>

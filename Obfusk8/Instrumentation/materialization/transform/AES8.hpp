@@ -311,88 +311,61 @@ NOOPT
         // ------------------------------------------------
             #pragma region MSVC_CLANG-CL_sections
             // ------------------------------------------------
-                    #define PACKER_SECTION_0 ".themida"
-                    #define PACKER_SECTION_1 ".vmp1"
-                    #define PACKER_SECTION_2 ".enigma2"
-                    #define PACKER_SECTION_3 ".vmp0"
-                    #define PACKER_SECTION_4 ".FSG!"
-                    #define PACKER_SECTION_5 ".aspack"
-                    #define PACKER_SECTION_6 ".nsp1"
-                    #define PACKER_SECTION_7 ".vmp2"
-                    #define PACKER_SECTION_8 ".UPX0"
-                    #define PACKER_SECTION_9 ".\npdata"
-                    #define PACKER_SECTION_10 ".UPX2"
-                    #define PACKER_SECTION_11 ".vmp3"
-                    #define PACKER_SECTION_12 ".pec1"
-                    #define PACKER_SECTION_13 ".pec2"
-                    #define PACKER_SECTION_14 ".petite"
-                    #define PACKER_SECTION_15 ".mpress1"
-                    #define PACKER_SECTION_16 ".mpress2"
-                    #define PACKER_SECTION_17 ".xtls"
-                    #define PACKER_SECTION_18 ".arch"
-                    #define PACKER_SECTION_19 ".mrdata"
-                    #define PACKER_SECTION_20 ".dsstext"
-                    #define PACKER_SECTION_21 ".vmp4"
-                    #define PACKER_SECTION_22 ".vmp5"
-                    #define PACKER_SECTION_23 ".vmp6"
-                    #define PACKER_SECTION_24 ".vmp7"
-                    #define PACKER_SECTION_25 ".vmp8"
-                    #define PACKER_SECTION_26 ".enigma1"
-                    #define PACKER_SECTION_27 ".nsp0"
-                    #define PACKER_SECTION_28 ".aspack2"
-                    #define PACKER_SECTION_29 ".upx3"
-                    #define PACKER_SECTION_30 ".vmp9"
-                    #define PACKER_SECTION_31 ".enigma3"
-                    #define PACKER_SECTION_32 ".themida2"
-                    #define PACKER_SECTION_33 ".fsg2"
-                    #define PACKER_SECTION_34 ".nsp2"
-                    #define PACKER_SECTION_35 ".pec3"
-                    #define PACKER_SECTION_36 ".petite2"
-                    #define PACKER_SECTION_37 ".mpress3"
-                    #define PACKER_SECTION_38 ".tls2"
-                    #define PACKER_SECTION_39 ".pdata2"
+                    #define PACKER_SECTION_0 ".reloc"
+                    #define PACKER_SECTION_1 ".reloc"
+                    #define PACKER_SECTION_2 ".bss"
+                    #define PACKER_SECTION_3 ".bss"
+                    #define PACKER_SECTION_4 ".reloc"
+                    #define PACKER_SECTION_5 ".reloc"
+                    #define PACKER_SECTION_6 ".tls"
+                    #define PACKER_SECTION_7 ".tls"
+                    #define PACKER_SECTION_8 ".CRT"
+                    #define PACKER_SECTION_9 ".CRT"
+                    #define PACKER_SECTION_10 ".idata"
+                    #define PACKER_SECTION_11 ".idata"
+                    #define PACKER_SECTION_12 ".edata"
+                    #define PACKER_SECTION_13 ".edata"
+                    #define PACKER_SECTION_14 ".00cfg"
+                    #define PACKER_SECTION_15 ".00cfg"
+                    #define PACKER_SECTION_16 ".sxdata"
+                    #define PACKER_SECTION_17 ".sxdata"
+                    #define PACKER_SECTION_18 ".gfids"
+                    #define PACKER_SECTION_19 ".gfids"
+                    #define PACKER_SECTION_20 ".giats"
+                    #define PACKER_SECTION_21 ".giats"
+                    #define PACKER_SECTION_22 ".eh_frame"
+                    #define PACKER_SECTION_23 ".eh_frame"
+                    #define PACKER_SECTION_24 ".giats"
+                    #define PACKER_SECTION_25 ".giats"
+                    #define PACKER_SECTION_26 ".giats"
+                    #define PACKER_SECTION_27 ".giats"
+                    #define PACKER_SECTION_28 ".reloc"
+                    #define PACKER_SECTION_29 ".reloc"
+                    #define PACKER_SECTION_30 ".bss"
+                    #define PACKER_SECTION_31 ".bss"
+                    #define PACKER_SECTION_32 ".reloc"
+                    #define PACKER_SECTION_33 ".reloc"
+                    #define PACKER_SECTION_34 ".tls"
+                    #define PACKER_SECTION_35 ".tls"
+                    #define PACKER_SECTION_36 ".CRT"
+                    #define PACKER_SECTION_37 ".CRT"
+                    #define PACKER_SECTION_38 ".idata"
+                    #define PACKER_SECTION_39 ".idata"
 
                     #define PICK_SECTION(idx) PACKER_SECTION_##idx
 
                     #if defined(_MSC_VER) || defined(__clang__)
-                        #pragma section(".enigma2", read, write)
-                        #pragma section(".vmp0", read, write)
-                        #pragma section(".FSG!", read, write)
-                        #pragma section(".aspack", read, write)
-                        #pragma section(".nsp1", read, write)
-                        #pragma section(".vmp2", read, write)
-                        #pragma section(".UPX0", read, write)
-                        #pragma section(".pdata", read, write)
-                        #pragma section(".UPX2", read, write)
-                        #pragma section(".vmp3", read, write)
-                        #pragma section(".pec1", read, write)
-                        #pragma section(".pec2", read, write)
-                        #pragma section(".petite", read, write)
-                        #pragma section(".mpress1", read, write)
-                        #pragma section(".mpress2", read, write)
-                        #pragma section(".xtls", read, write)
-                        #pragma section(".arch", read, write)
-                        #pragma section(".mrdata", read, write)
-                        #pragma section(".dsstext", read, write)
-                        #pragma section(".vmp4", read, write)
-                        #pragma section(".vmp5", read, write)
-                        #pragma section(".vmp6", read, write)
-                        #pragma section(".vmp7", read, write)
-                        #pragma section(".vmp8", read, write)
-                        #pragma section(".enigma1", read, write)
-                        #pragma section(".nsp0", read, write)
-                        #pragma section(".aspack2", read, write)
-                        #pragma section(".upx3", read, write)
-                        #pragma section(".vmp9", read, write)
-                        #pragma section(".enigma3", read, write)
-                        #pragma section(".themida2", read, write)
-                        #pragma section(".fsg2", read, write)
-                        #pragma section(".nsp2", read, write)
-                        #pragma section(".pec3", read, write)
-                        #pragma section(".petite2", read, write)
-                        #pragma section(".mpress3", read, write)
-                        #pragma section(".tls2", read, write)
-                        #pragma section(".pdata2", read, write)
+                        #pragma section(".reloc", read, write)
+                        #pragma section(".bss", read, write)
+                        #pragma section(".tls", read, write)
+                        #pragma section(".CRT", read, write)
+                        #pragma section(".idata", read, write)
+                        #pragma section(".edata", read, write)
+                        #pragma section(".00cfg", read, write)
+                        #pragma section(".sxdata", read, write)
+                        #pragma section(".gfids", read, write)
+                        #pragma section(".eh_frame", read, write)
+                        #pragma section(".giats", read, write)
                     #endif
                     #if defined(_MSC_VER) || defined(__clang__)
                         #define DECLARE_SECTION(secname) __pragma(section(secname, read, write))
@@ -440,95 +413,41 @@ NOOPT
                         constexpr uint8_t _k1 = sizeof(_CharT) > 1 ? AES_KW1(str, __LINE__) : AES_K1(str, __LINE__); \
                         constexpr uint8_t _k2 = sizeof(_CharT) > 1 ? AES_KW2(str, __LINE__) : AES_K2(str, __LINE__); \
                         constexpr uint8_t _k3 = sizeof(_CharT) > 1 ? AES_KW3(str, __LINE__) : AES_K3(str, __LINE__); \
-                        constexpr auto encrypted = _obf_get_encrypted<_CharT, _RAW_SIZE / sizeof(_CharT), _k0, _k1, _k2, _k3>(str); \
-                        DECLARE_SECTION(PICK_SECTION(0)) static SECTION_ATTR_SEC(PICK_SECTION(0)) uint32_t CONCAT(_c0_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__), _obf_safe_enc<0>(encrypted), _obf_safe_enc<1>(encrypted), _obf_safe_enc<2>(encrypted), _obf_safe_enc<3>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(1)) static SECTION_ATTR_SEC(PICK_SECTION(1)) uint32_t CONCAT(_c1_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__), _obf_safe_enc<4>(encrypted), _obf_safe_enc<5>(encrypted), _obf_safe_enc<6>(encrypted), _obf_safe_enc<7>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(2)) static SECTION_ATTR_SEC(PICK_SECTION(2)) uint32_t CONCAT(_c2_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__), _obf_safe_enc<8>(encrypted), _obf_safe_enc<9>(encrypted), _obf_safe_enc<10>(encrypted), _obf_safe_enc<11>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(3)) static SECTION_ATTR_SEC(PICK_SECTION(3)) uint32_t CONCAT(_c3_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__), _obf_safe_enc<12>(encrypted), _obf_safe_enc<13>(encrypted), _obf_safe_enc<14>(encrypted), _obf_safe_enc<15>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(4)) static SECTION_ATTR_SEC(PICK_SECTION(4)) uint32_t CONCAT(_c4_, __LINE__)[5] = { GEN_SIG(SIG_BASE_FSG, __LINE__), _obf_safe_enc<16>(encrypted), _obf_safe_enc<17>(encrypted), _obf_safe_enc<18>(encrypted), _obf_safe_enc<19>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(5)) static SECTION_ATTR_SEC(PICK_SECTION(5)) uint32_t CONCAT(_c5_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ASPACK, __LINE__), _obf_safe_enc<20>(encrypted), _obf_safe_enc<21>(encrypted), _obf_safe_enc<22>(encrypted), _obf_safe_enc<23>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(6)) static SECTION_ATTR_SEC(PICK_SECTION(6)) uint32_t CONCAT(_c6_, __LINE__)[5] = { GEN_SIG(SIG_BASE_NSPACK, __LINE__), _obf_safe_enc<24>(encrypted), _obf_safe_enc<25>(encrypted), _obf_safe_enc<26>(encrypted), _obf_safe_enc<27>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(7)) static SECTION_ATTR_SEC(PICK_SECTION(7)) uint32_t CONCAT(_c7_, __LINE__)[5] = { GEN_SIG(SIG_BASE_MPRESS, __LINE__), _obf_safe_enc<28>(encrypted), _obf_safe_enc<29>(encrypted), _obf_safe_enc<30>(encrypted), _obf_safe_enc<31>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(8)) static SECTION_ATTR_SEC(PICK_SECTION(8)) uint32_t CONCAT(_c8_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__+1), _obf_safe_enc<32>(encrypted), _obf_safe_enc<33>(encrypted), _obf_safe_enc<34>(encrypted), _obf_safe_enc<35>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(9)) static SECTION_ATTR_SEC(PICK_SECTION(9)) uint32_t CONCAT(_c9_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__+1), _obf_safe_enc<36>(encrypted), _obf_safe_enc<37>(encrypted), _obf_safe_enc<38>(encrypted), _obf_safe_enc<39>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(10)) static SECTION_ATTR_SEC(PICK_SECTION(10)) uint32_t CONCAT(_c10_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__+1), _obf_safe_enc<40>(encrypted), _obf_safe_enc<41>(encrypted), _obf_safe_enc<42>(encrypted), _obf_safe_enc<43>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(11)) static SECTION_ATTR_SEC(PICK_SECTION(11)) uint32_t CONCAT(_c11_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__+1), _obf_safe_enc<44>(encrypted), _obf_safe_enc<45>(encrypted), _obf_safe_enc<46>(encrypted), _obf_safe_enc<47>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(12)) static SECTION_ATTR_SEC(PICK_SECTION(12)) uint32_t CONCAT(_c12_, __LINE__)[5] = { GEN_SIG(SIG_BASE_FSG, __LINE__+1), _obf_safe_enc<48>(encrypted), _obf_safe_enc<49>(encrypted), _obf_safe_enc<50>(encrypted), _obf_safe_enc<51>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(13)) static SECTION_ATTR_SEC(PICK_SECTION(13)) uint32_t CONCAT(_c13_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ASPACK, __LINE__+1), _obf_safe_enc<52>(encrypted), _obf_safe_enc<53>(encrypted), _obf_safe_enc<54>(encrypted), _obf_safe_enc<55>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(14)) static SECTION_ATTR_SEC(PICK_SECTION(14)) uint32_t CONCAT(_c14_, __LINE__)[5] = { GEN_SIG(SIG_BASE_NSPACK, __LINE__+1), _obf_safe_enc<56>(encrypted), _obf_safe_enc<57>(encrypted), _obf_safe_enc<58>(encrypted), _obf_safe_enc<59>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(15)) static SECTION_ATTR_SEC(PICK_SECTION(15)) uint32_t CONCAT(_c15_, __LINE__)[5] = { GEN_SIG(SIG_BASE_MPRESS, __LINE__+1), _obf_safe_enc<60>(encrypted), _obf_safe_enc<61>(encrypted), _obf_safe_enc<62>(encrypted), _obf_safe_enc<63>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(16)) static SECTION_ATTR_SEC(PICK_SECTION(16)) uint32_t CONCAT(_c16_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__+2), _obf_safe_enc<64>(encrypted), _obf_safe_enc<65>(encrypted), _obf_safe_enc<66>(encrypted), _obf_safe_enc<67>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(17)) static SECTION_ATTR_SEC(PICK_SECTION(17)) uint32_t CONCAT(_c17_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__+2), _obf_safe_enc<68>(encrypted), _obf_safe_enc<69>(encrypted), _obf_safe_enc<70>(encrypted), _obf_safe_enc<71>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(18)) static SECTION_ATTR_SEC(PICK_SECTION(18)) uint32_t CONCAT(_c18_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__+2), _obf_safe_enc<72>(encrypted), _obf_safe_enc<73>(encrypted), _obf_safe_enc<74>(encrypted), _obf_safe_enc<75>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(19)) static SECTION_ATTR_SEC(PICK_SECTION(19)) uint32_t CONCAT(_c19_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__+2), _obf_safe_enc<76>(encrypted), _obf_safe_enc<77>(encrypted), _obf_safe_enc<78>(encrypted), _obf_safe_enc<79>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(20)) static SECTION_ATTR_SEC(PICK_SECTION(20)) uint32_t CONCAT(_c20_, __LINE__)[5] = { GEN_SIG(SIG_BASE_FSG, __LINE__+2), _obf_safe_enc<80>(encrypted), _obf_safe_enc<81>(encrypted), _obf_safe_enc<82>(encrypted), _obf_safe_enc<83>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(21)) static SECTION_ATTR_SEC(PICK_SECTION(21)) uint32_t CONCAT(_c21_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ASPACK, __LINE__+2), _obf_safe_enc<84>(encrypted), _obf_safe_enc<85>(encrypted), _obf_safe_enc<86>(encrypted), _obf_safe_enc<87>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(22)) static SECTION_ATTR_SEC(PICK_SECTION(22)) uint32_t CONCAT(_c22_, __LINE__)[5] = { GEN_SIG(SIG_BASE_NSPACK, __LINE__+2), _obf_safe_enc<88>(encrypted), _obf_safe_enc<89>(encrypted), _obf_safe_enc<90>(encrypted), _obf_safe_enc<91>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(23)) static SECTION_ATTR_SEC(PICK_SECTION(23)) uint32_t CONCAT(_c23_, __LINE__)[5] = { GEN_SIG(SIG_BASE_MPRESS, __LINE__+2), _obf_safe_enc<92>(encrypted), _obf_safe_enc<93>(encrypted), _obf_safe_enc<94>(encrypted), _obf_safe_enc<95>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(24)) static SECTION_ATTR_SEC(PICK_SECTION(24)) uint32_t CONCAT(_c24_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__+3), _obf_safe_enc<96>(encrypted), _obf_safe_enc<97>(encrypted), _obf_safe_enc<98>(encrypted), _obf_safe_enc<99>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(25)) static SECTION_ATTR_SEC(PICK_SECTION(25)) uint32_t CONCAT(_c25_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__+3), _obf_safe_enc<100>(encrypted), _obf_safe_enc<101>(encrypted), _obf_safe_enc<102>(encrypted), _obf_safe_enc<103>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(26)) static SECTION_ATTR_SEC(PICK_SECTION(26)) uint32_t CONCAT(_c26_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__+3), _obf_safe_enc<104>(encrypted), _obf_safe_enc<105>(encrypted), _obf_safe_enc<106>(encrypted), _obf_safe_enc<107>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(27)) static SECTION_ATTR_SEC(PICK_SECTION(27)) uint32_t CONCAT(_c27_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__+3), _obf_safe_enc<108>(encrypted), _obf_safe_enc<109>(encrypted), _obf_safe_enc<110>(encrypted), _obf_safe_enc<111>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(28)) static SECTION_ATTR_SEC(PICK_SECTION(28)) uint32_t CONCAT(_c28_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__+3), _obf_safe_enc<112>(encrypted), _obf_safe_enc<113>(encrypted), _obf_safe_enc<114>(encrypted), _obf_safe_enc<115>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(29)) static SECTION_ATTR_SEC(PICK_SECTION(29)) uint32_t CONCAT(_c29_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__+3), _obf_safe_enc<116>(encrypted), _obf_safe_enc<117>(encrypted), _obf_safe_enc<118>(encrypted), _obf_safe_enc<119>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(30)) static SECTION_ATTR_SEC(PICK_SECTION(30)) uint32_t CONCAT(_c30_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__+3), _obf_safe_enc<120>(encrypted), _obf_safe_enc<121>(encrypted), _obf_safe_enc<122>(encrypted), _obf_safe_enc<123>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(31)) static SECTION_ATTR_SEC(PICK_SECTION(31)) uint32_t CONCAT(_c31_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__+3), _obf_safe_enc<124>(encrypted), _obf_safe_enc<125>(encrypted), _obf_safe_enc<126>(encrypted), _obf_safe_enc<127>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(32)) static SECTION_ATTR_SEC(PICK_SECTION(32)) uint32_t CONCAT(_c32_, __LINE__)[5] = { GEN_SIG(SIG_BASE_FSG, __LINE__+3), _obf_safe_enc<128>(encrypted), _obf_safe_enc<129>(encrypted), _obf_safe_enc<130>(encrypted), _obf_safe_enc<131>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(33)) static SECTION_ATTR_SEC(PICK_SECTION(33)) uint32_t CONCAT(_c33_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ASPACK, __LINE__+3), _obf_safe_enc<132>(encrypted), _obf_safe_enc<133>(encrypted), _obf_safe_enc<134>(encrypted), _obf_safe_enc<135>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(34)) static SECTION_ATTR_SEC(PICK_SECTION(34)) uint32_t CONCAT(_c34_, __LINE__)[5] = { GEN_SIG(SIG_BASE_NSPACK, __LINE__+3), _obf_safe_enc<136>(encrypted), _obf_safe_enc<137>(encrypted), _obf_safe_enc<138>(encrypted), _obf_safe_enc<139>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(35)) static SECTION_ATTR_SEC(PICK_SECTION(35)) uint32_t CONCAT(_c35_, __LINE__)[5] = { GEN_SIG(SIG_BASE_MPRESS, __LINE__+3), _obf_safe_enc<140>(encrypted), _obf_safe_enc<141>(encrypted), _obf_safe_enc<142>(encrypted), _obf_safe_enc<143>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(36)) static SECTION_ATTR_SEC(PICK_SECTION(36)) uint32_t CONCAT(_c36_, __LINE__)[5] = { GEN_SIG(SIG_BASE_UPX, __LINE__+4), _obf_safe_enc<144>(encrypted), _obf_safe_enc<145>(encrypted), _obf_safe_enc<146>(encrypted), _obf_safe_enc<147>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(37)) static SECTION_ATTR_SEC(PICK_SECTION(37)) uint32_t CONCAT(_c37_, __LINE__)[5] = { GEN_SIG(SIG_BASE_VMP, __LINE__+4), _obf_safe_enc<148>(encrypted), _obf_safe_enc<149>(encrypted), _obf_safe_enc<150>(encrypted), _obf_safe_enc<151>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(38)) static SECTION_ATTR_SEC(PICK_SECTION(38)) uint32_t CONCAT(_c38_, __LINE__)[5] = { GEN_SIG(SIG_BASE_ENIGMA, __LINE__+4), _obf_safe_enc<152>(encrypted), _obf_safe_enc<153>(encrypted), _obf_safe_enc<154>(encrypted), _obf_safe_enc<155>(encrypted) }; \
-                        DECLARE_SECTION(PICK_SECTION(39)) static SECTION_ATTR_SEC(PICK_SECTION(39)) uint32_t CONCAT(_c39_, __LINE__)[5] = { GEN_SIG(SIG_BASE_THEMIDA, __LINE__+4), _obf_safe_enc<156>(encrypted), _obf_safe_enc<157>(encrypted), _obf_safe_enc<158>(encrypted), _obf_safe_enc<159>(encrypted) }; \
+                        constexpr auto _enc = _obf_get_encrypted<_CharT, _RAW_SIZE / sizeof(_CharT), _k0, _k1, _k2, _k3>(str); \
                         \
-                        uint8_t out_raw[40 * 16] = {}; \
-                        const uint8_t* key_ptr = _obf_get_key<_CharT, _RAW_SIZE / sizeof(_CharT), _k0, _k1, _k2, _k3>(); \
-                        for (int chunk = 0; chunk < (int)_NUM_CHUNKS; ++chunk) { \
-                            uint32_t* cp = nullptr; \
-                            switch(chunk) { \
-                                case 0: cp = CONCAT(_c0_, __LINE__); break; case 1: cp = CONCAT(_c1_, __LINE__); break; \
-                                case 2: cp = CONCAT(_c2_, __LINE__); break; case 3: cp = CONCAT(_c3_, __LINE__); break; \
-                                case 4: cp = CONCAT(_c4_, __LINE__); break; case 5: cp = CONCAT(_c5_, __LINE__); break; \
-                                case 6: cp = CONCAT(_c6_, __LINE__); break; case 7: cp = CONCAT(_c7_, __LINE__); break; \
-                                case 8: cp = CONCAT(_c8_, __LINE__); break; case 9: cp = CONCAT(_c9_, __LINE__); break; \
-                                case 10: cp = CONCAT(_c10_, __LINE__); break; case 11: cp = CONCAT(_c11_, __LINE__); break; \
-                                case 12: cp = CONCAT(_c12_, __LINE__); break; case 13: cp = CONCAT(_c13_, __LINE__); break; \
-                                case 14: cp = CONCAT(_c14_, __LINE__); break; case 15: cp = CONCAT(_c15_, __LINE__); break; \
-                                case 16: cp = CONCAT(_c16_, __LINE__); break; case 17: cp = CONCAT(_c17_, __LINE__); break; \
-                                case 18: cp = CONCAT(_c18_, __LINE__); break; case 19: cp = CONCAT(_c19_, __LINE__); break; \
-                                case 20: cp = CONCAT(_c20_, __LINE__); break; case 21: cp = CONCAT(_c21_, __LINE__); break; \
-                                case 22: cp = CONCAT(_c22_, __LINE__); break; case 23: cp = CONCAT(_c23_, __LINE__); break; \
-                                case 24: cp = CONCAT(_c24_, __LINE__); break; case 25: cp = CONCAT(_c25_, __LINE__); break; \
-                                case 26: cp = CONCAT(_c26_, __LINE__); break; case 27: cp = CONCAT(_c27_, __LINE__); break; \
-                                case 28: cp = CONCAT(_c28_, __LINE__); break; case 29: cp = CONCAT(_c29_, __LINE__); break; \
-                                case 30: cp = CONCAT(_c30_, __LINE__); break; case 31: cp = CONCAT(_c31_, __LINE__); break; \
-                                case 32: cp = CONCAT(_c32_, __LINE__); break; case 33: cp = CONCAT(_c33_, __LINE__); break; \
-                                case 34: cp = CONCAT(_c34_, __LINE__); break; case 35: cp = CONCAT(_c35_, __LINE__); break; \
-                                case 36: cp = CONCAT(_c36_, __LINE__); break; case 37: cp = CONCAT(_c37_, __LINE__); break; \
-                                case 38: cp = CONCAT(_c38_, __LINE__); break; case 39: cp = CONCAT(_c39_, __LINE__); break; \
-                            } \
-                            if (!cp)\
-                                break; \
+                        uint8_t out_raw[640] = {}; \
+                        uint8_t runtime_key[16] = { \
+                            _k0, _k1, _k2, _k3, _k3, _k2, _k1, _k0, \
+                            _k0, _k0, _k1, _k1, _k2, _k2, _k3, _k3 \
+                        }; \
+                        for (size_t chunk = 0; chunk < _NUM_CHUNKS; ++chunk) { \
                             uint8_t block[16]; \
-                            for(int i = 0; i < 4; ++i) { \
-                                block[i*4+0] = (cp[i+1] >> 0) & 0xFF; \
-                                block[i*4+1] = (cp[i+1] >> 8) & 0xFF; \
-                                block[i*4+2] = (cp[i+1] >> 16) & 0xFF; \
-                                block[i*4+3] = (cp[i+1] >> 24) & 0xFF; \
+                            for (int i = 0; i < 4; ++i) { \
+                                size_t idx = chunk * 4 + i; \
+                                uint32_t val = (idx < _enc.size()) ? _enc[idx] : 0; \
+                                block[i*4+0] = (val >> 0) & 0xFF; \
+                                block[i*4+1] = (val >> 8) & 0xFF; \
+                                block[i*4+2] = (val >> 16) & 0xFF; \
+                                block[i*4+3] = (val >> 24) & 0xFF; \
                             } \
-                            aes_constexpr::DecryptBlock(block, key_ptr); \
+                            aes_constexpr::DecryptBlock(block, runtime_key); \
                             for (size_t j = 0; j < 16; ++j) \
                                 out_raw[chunk * 16 + j] = block[j]; \
                         } \
+                        size_t final_len = _RAW_SIZE; \
+                        for (size_t i = 0; i < final_len; ++i) { \
+                            if (out_raw[i] == 0 && i > 0) { \
+                                final_len = i; break; \
+                            } \
+                        } \
                         if constexpr (sizeof(_CharT) > 1) { \
                             wstring ws;\
-                            ws.resize((_RAW_SIZE / sizeof(wchar_t)) - 1); \
+                            ws.resize((final_len / sizeof(wchar_t))); \
                             for(size_t i = 0; i < ws.size(); ++i)\
                                 ws[i] = (wchar_t)((uint16_t)out_raw[i*2] | ((uint16_t)out_raw[i*2+1] << 8)); \
                             return ws; \
                         } else \
-                            return string((char*)out_raw, _RAW_SIZE - 1); \
+                            return string((char*)out_raw, final_len); \
                     })()
 
                 #define OBFUSCATE_STRING(str) _INTERNAL_OBF(str)
