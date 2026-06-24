@@ -15,7 +15,7 @@ REG_CALLE(RegistryAPI* _RegistryAPI)
 
     LSTATUS status = _RegistryAPI->pRegCreateKeyExA(
         HKEY_CURRENT_USER,
-        "Software\\Obfusk8",
+        OBFUSCATE_STRING("Software\\Obfusk8").c_str(),
         0,
         NULL,
         REG_OPTION_NON_VOLATILE,
@@ -25,19 +25,20 @@ REG_CALLE(RegistryAPI* _RegistryAPI)
         &dwDisposition
     );
 
-    const char* valueData = "_Obfusk8";
+    auto valName = OBFUSCATE_STRING("Obfusk8");
+    auto valData = OBFUSCATE_STRING("_Obfusk8");
     status = _RegistryAPI->pRegSetValueExA(
         hKey,
-        "Obfusk8",
+        valName.c_str(),
         0,
         REG_SZ,
-        reinterpret_cast<const BYTE*>(valueData),
-        strlen(valueData) + 1
+        reinterpret_cast<const BYTE*>(valData.c_str()),
+        valData.length() + 1
     );
 
     status = _RegistryAPI->pRegQueryValueExA(
         hKey,
-        "Obfusk8",
+        valName.c_str(),
         NULL,
         &type,
         reinterpret_cast<LPBYTE>(readBuffer),
@@ -103,8 +104,9 @@ Cryp_CALLE(CryptographyAPI* _CryptographyAPI)
     if (!_CryptographyAPI->pCryptHashData(hHash, (const BYTE*)OBFUSCATE_STRING("Obfusk8!").c_str(), (DWORD)strlen(OBFUSCATE_STRING("Obfusk8!").c_str()), 0)){}
     if (!_CryptographyAPI->pCryptDeriveKey(hProv, CALG_AES_128, hHash, 0, &hKey)){}
 
-    char originalDataStr[] = "Obfusk8 C++17";
-    std::vector<BYTE> dataBuffer(originalDataStr, originalDataStr + strlen(originalDataStr) + 1);
+    auto obfTestData = OBFUSCATE_STRING("Obfusk8 C++17");
+    std::vector<BYTE> dataBuffer(obfTestData.begin(), obfTestData.end());
+    dataBuffer.push_back(0);
     DWORD dataLen = (DWORD)dataBuffer.size();
     DWORD bufferLen = dataLen;
 
@@ -113,7 +115,7 @@ Cryp_CALLE(CryptographyAPI* _CryptographyAPI)
     dataBuffer.resize(bufferLen);
 
     std::vector<BYTE> encryptedBuffer = dataBuffer;
-    memcpy(encryptedBuffer.data(), originalDataStr, dataLen);
+    memcpy(encryptedBuffer.data(), obfTestData.c_str(), dataLen);
     DWORD encryptedDataLen = dataLen;
 
     if (!_CryptographyAPI->pCryptEncrypt(hKey, 0, TRUE, 0, encryptedBuffer.data(), &encryptedDataLen, (DWORD)encryptedBuffer.size())){}

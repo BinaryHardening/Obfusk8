@@ -232,6 +232,7 @@ namespace K8_ProcessManipulationAPIs
     using TerminateProcess_t            =       BOOL(WINAPI*)(HANDLE, UINT);
     using CreateRemoteThread_t          =       HANDLE(WINAPI*)(HANDLE, LPSECURITY_ATTRIBUTES, SIZE_T, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD);
     using VirtualAllocEx_t              =       LPVOID(WINAPI*)(HANDLE, LPVOID, SIZE_T, DWORD, DWORD);
+    using VirtualProtectEx_t            =       BOOL(WINAPI*)(HANDLE, LPVOID, SIZE_T, DWORD, PDWORD);
     using WriteProcessMemory_t          =       BOOL(WINAPI*)(HANDLE, LPVOID, LPCVOID, SIZE_T, SIZE_T*);
     using ReadProcessMemory_t           =       BOOL(WINAPI*)(HANDLE, LPCVOID, LPVOID, SIZE_T, SIZE_T*);
     using GetProcAddress_t              =       FARPROC(WINAPI*)(HMODULE, LPCSTR);
@@ -247,6 +248,7 @@ namespace K8_ProcessManipulationAPIs
         TerminateProcess_t pTerminateProcess;
         CreateRemoteThread_t pCreateRemoteThread;
         VirtualAllocEx_t pVirtualAllocEx;
+        VirtualProtectEx_t pVirtualProtectEx;
         WriteProcessMemory_t pWriteProcessMemory;
         ReadProcessMemory_t pReadProcessMemory;
         GetProcAddress_t pGetProcAddress;
@@ -262,6 +264,7 @@ namespace K8_ProcessManipulationAPIs
             pTerminateProcess(nullptr),
             pCreateRemoteThread(nullptr),
             pVirtualAllocEx(nullptr),
+            pVirtualProtectEx(nullptr),
             pWriteProcessMemory(nullptr),
             pReadProcessMemory(nullptr),
             pGetProcAddress(nullptr),
@@ -285,6 +288,7 @@ namespace K8_ProcessManipulationAPIs
             pTerminateProcess               =       reinterpret_cast<TerminateProcess_t>(STEALTH_API_OBFSTR("kernel32.dll", "TerminateProcess"));
             pCreateRemoteThread             =       reinterpret_cast<CreateRemoteThread_t>(STEALTH_API_OBFSTR("kernel32.dll", "CreateRemoteThread"));
             pVirtualAllocEx                 =       reinterpret_cast<VirtualAllocEx_t>(STEALTH_API_OBFSTR("kernel32.dll", "VirtualAllocEx"));
+            pVirtualProtectEx               =       reinterpret_cast<VirtualProtectEx_t>(STEALTH_API_OBFSTR("kernel32.dll", "VirtualProtectEx"));
             pWriteProcessMemory             =       reinterpret_cast<WriteProcessMemory_t>(STEALTH_API_OBFSTR("kernel32.dll", "WriteProcessMemory"));
             pReadProcessMemory              =       reinterpret_cast<ReadProcessMemory_t>(STEALTH_API_OBFSTR("kernel32.dll", "ReadProcessMemory"));
             pGetProcAddress                 =       reinterpret_cast<GetProcAddress_t>(STEALTH_API_OBFSTR("kernel32.dll", "GetProcAddress"));
@@ -293,7 +297,7 @@ namespace K8_ProcessManipulationAPIs
             pSuspendThread                  =       reinterpret_cast<SuspendThread_t>(STEALTH_API_OBFSTR("kernel32.dll", "SuspendThread"));
             pGetCurrentProcessId            =       reinterpret_cast<GetCurrentProcessId_t>(STEALTH_API_OBFSTR("kernel32.dll", "GetCurrentProcessId"));
 
-            if (pOpenProcess && pTerminateProcess && pCreateRemoteThread && pVirtualAllocEx &&
+            if (pOpenProcess && pTerminateProcess && pCreateRemoteThread && pVirtualAllocEx && pVirtualProtectEx &&
                 pWriteProcessMemory && pReadProcessMemory && pGetProcAddress &&
                 pGetModuleHandleA && pNtQueryInformationProcess && pSuspendThread && pGetCurrentProcessId)
             {

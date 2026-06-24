@@ -309,6 +309,21 @@ Dynamic Syscall Stubs: Instead of utilizing static syscall instructions within t
         *   Future development of Obfusk8 could explore options for more granular control over obfuscation intensity or even integrate lightweight packing/compression stubs directly within the library, though this would significantly increase its complexity.
 
 
+### Post-Build PE Obfuscation
+Obfusk8 includes a post-build script to further harden the compiled binary by removing forensic artifacts.
+
+*   **Script Location**: `Obfusk8/SCRIPTS/obfuscate_pe.ps1`
+*   **What it does**:
+    1.  **Strips the Rich Header** — removes the MSVC build-environment fingerprint that reveals compiler version and toolchain details.
+    2.  **Spoofs the TimeDateStamp** — replaces the PE header timestamp with a fixed value to obscure build time.
+    3.  **Clears the Debug Directory** — wipes debug directory entries that could leak PDB paths or build metadata.
+*   **Usage**:
+    Run as a post-build step after compiling:
+    ```powershell
+    PowerShell -NoProfile -ExecutionPolicy Bypass -File Obfusk8/SCRIPTS/obfuscate_pe.ps1 -Path "path\to\Obfusk8.exe"
+    ```
+    The script modifies the binary in-place. No backup is created.
+
 ### Demo
    [[Obfusk8: C++17-Based Obfuscation Library - IDA pro Graph View] ~Video Demo](https://youtu.be/B9g4KSg3tHQ)
 
