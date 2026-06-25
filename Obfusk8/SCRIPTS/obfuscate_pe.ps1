@@ -29,31 +29,5 @@ if ($optHdrMagic -eq 0x20B) {
     }
 }
 
-$strings = @(
-    "Software\Obfusk8",
-    "_Obfusk8",
-    "Obfusk8 C++17",
-    "Obfusk8!",
-    "Obfusk8 Library Ready to use :3",
-    "Obfusk8IsTheBestToolForObfuscation"
-)
-
-$text = [System.Text.Encoding]::ASCII.GetString($bytes)
-$hitCount = 0
-foreach ($s in $strings) {
-    $offset = 0
-    while ($true) {
-        $pos = $text.IndexOf($s, $offset)
-        if ($pos -lt 0) { break }
-        $end = $pos + $s.Length
-        if ($end -lt $bytes.Length -and $bytes[$end] -eq 0) {
-            for ($i = 0; $i -lt $s.Length; $i++) { $bytes[$pos + $i] = 0 }
-            $hitCount++
-        }
-        $offset = $pos + 1
-    }
-}
-$text = $null
-
 [System.IO.File]::WriteAllBytes($Path, $bytes)
-Write-Host "[OK] PE obfuscation complete: $Path ($hitCount strings zeroed)"
+Write-Host "[OK] PE obfuscation complete: $Path"
