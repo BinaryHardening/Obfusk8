@@ -56,10 +56,208 @@ constexpr uint32_t _obf_date_hash() {
                 };
 
                 constexpr uint8_t rcon[11] = { 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
+
+                constexpr void KeyExpansion(const uint8_t* key, uint8_t* w) {
+                    for (int i = 0; i < 4; i++) {
+                        w[4 * i] = key[4 * i];
+                        w[4 * i + 1] = key[4 * i + 1];
+                        w[4 * i + 2] = key[4 * i + 2];
+                        w[4 * i + 3] = key[4 * i + 3];
+                    }
+                    for (int i = 4; i < 44; i++) {
+                        uint8_t temp[4] = { 0 };
+                        temp[0] = w[4 * (i - 1)];
+                        temp[1] = w[4 * (i - 1) + 1];
+                        temp[2] = w[4 * (i - 1) + 2];
+                        temp[3] = w[4 * (i - 1) + 3];
+
+                        if (i % 4 == 0) {
+                            uint8_t t = temp[0];
+                            temp[0] = sbox[temp[1]] ^ rcon[i / 4];
+                            temp[1] = sbox[temp[2]];
+                            temp[2] = sbox[temp[3]];
+                            temp[3] = sbox[t];
+                        }
+                        w[4 * i] = w[4 * (i - 4)] ^ temp[0];
+                        w[4 * i + 1] = w[4 * (i - 4) + 1] ^ temp[1];
+                        w[4 * i + 2] = w[4 * (i - 4) + 2] ^ temp[2];
+                        w[4 * i + 3] = w[4 * (i - 4) + 3] ^ temp[3];
+                    }
+                }
+
+                constexpr void AddRoundKey(uint8_t* state, const uint8_t* roundKey) {
+                    for (int i = 0; i < 16; i++) state[i] ^= roundKey[i];
+                }
+
+                constexpr void SubBytes(uint8_t* state) {
+                    for (int i = 0; i < 16; i++) state[i] = sbox[state[i]];
+                }
+
+                constexpr void InvSubBytes(uint8_t* state) {
+                    for (int i = 0; i < 16; i++) state[i] = rsbox[state[i]];
+                }
+
+                constexpr void ShiftRows(uint8_t* state) {
+                    uint8_t temp[16] = { 0 };
+                    for (int i = 0; i < 16; i++) temp[i] = state[i];
+                    state[1] = temp[5]; state[5] = temp[9]; state[9] = temp[13]; state[13] = temp[1];
+                    state[2] = temp[10]; state[6] = temp[14]; state[10] = temp[2]; state[14] = temp[6];
+                    state[3] = temp[15]; state[7] = temp[3]; state[11] = temp[7]; state[15] = temp[11];
+                }
+
+                constexpr void InvShiftRows(uint8_t* state) {
+                    uint8_t temp[16] = { 0 };
+                    for (int i = 0; i < 16; i++) temp[i] = state[i];
+                    state[1] = temp[13]; state[5] = temp[1]; state[9] = temp[5]; state[13] = temp[9];
+                    state[2] = temp[10]; state[6] = temp[14]; state[10] = temp[2]; state[14] = temp[6];
+                    state[3] = temp[7]; state[7] = temp[11]; state[11] = temp[15]; state[15] = temp[3];
+                }
+
+                constexpr uint8_t gmul(uint8_t a, uint8_t b) {
+                    uint8_t p = 0;
+                    for (int i = 0; i < 8; i++) {
+                        if ((b & 1) != 0) p ^= a;
+                        bool hi_bit_set = (a & 0x80) != 0;
+                        a <<= 1;
+                        if (hi_bit_set) a ^= 0x1B;
+                        b >>= 1;
+                    }
+                    return p;
+                }
+
+                constexpr void MixColumns(uint8_t* state) {
+                    uint8_t tmp[16] = { 0 };
+                    for (int i = 0; i < 16; i++) tmp[i] = state[i];
+                    for (int i = 0; i < 4; i++) {
+                        state[4 * i] = gmul(tmp[4 * i], 2) ^ gmul(tmp[4 * i + 1], 3) ^ tmp[4 * i + 2] ^ tmp[4 * i + 3];
+                        state[4 * i + 1] = tmp[4 * i] ^ gmul(tmp[4 * i + 1], 2) ^ gmul(tmp[4 * i + 2], 3) ^ tmp[4 * i + 3];
+                        state[4 * i + 2] = tmp[4 * i] ^ tmp[4 * i + 1] ^ gmul(tmp[4 * i + 2], 2) ^ gmul(tmp[4 * i + 3], 3);
+                        state[4 * i + 3] = gmul(tmp[4 * i], 3) ^ tmp[4 * i + 1] ^ tmp[4 * i + 2] ^ gmul(tmp[4 * i + 3], 2);
+                    }
+                }
+
+                constexpr void InvMixColumns(uint8_t* state) {
+                    uint8_t tmp[16] = { 0 };
+                    for (int i = 0; i < 16; i++) tmp[i] = state[i];
+                    for (int i = 0; i < 4; i++) {
+                        state[4 * i] = gmul(tmp[4 * i], 0x0e) ^ gmul(tmp[4 * i + 1], 0x0b) ^ gmul(tmp[4 * i + 2], 0x0d) ^ gmul(tmp[4 * i + 3], 0x09);
+                        state[4 * i + 1] = gmul(tmp[4 * i], 0x09) ^ gmul(tmp[4 * i + 1], 0x0e) ^ gmul(tmp[4 * i + 2], 0x0b) ^ gmul(tmp[4 * i + 3], 0x0d);
+                        state[4 * i + 2] = gmul(tmp[4 * i], 0x0d) ^ gmul(tmp[4 * i + 1], 0x09) ^ gmul(tmp[4 * i + 2], 0x0e) ^ gmul(tmp[4 * i + 3], 0x0b);
+                        state[4 * i + 3] = gmul(tmp[4 * i], 0x0b) ^ gmul(tmp[4 * i + 1], 0x0d) ^ gmul(tmp[4 * i + 2], 0x09) ^ gmul(tmp[4 * i + 3], 0x0e);
+                    }
+                }
+
+                constexpr void EncryptBlock(uint8_t* in, const uint8_t* key) {
+                    uint8_t state[16] = { 0 };
+                    uint8_t w[176] = { 0 };
+                    for (int i = 0; i < 16; i++) state[i] = in[i];
+                    KeyExpansion(key, w);
+                    AddRoundKey(state, w);
+                    for (int round = 1; round < 10; round++) {
+                        SubBytes(state);
+                        ShiftRows(state);
+                        MixColumns(state);
+                        AddRoundKey(state, w + round * 16);
+                    }
+                    SubBytes(state);
+                    ShiftRows(state);
+                    AddRoundKey(state, w + 160);
+                    for (int i = 0; i < 16; i++) in[i] = state[i];
+                }
+
+                constexpr void DecryptBlock(uint8_t* in, const uint8_t* key) {
+                    uint8_t state[16] = { 0 };
+                    uint8_t w[176] = { 0 };
+                    for (int i = 0; i < 16; i++) state[i] = in[i];
+                    KeyExpansion(key, w);
+                    AddRoundKey(state, w + 160);
+                    for (int round = 9; round > 0; round--) {
+                        InvShiftRows(state);
+                        InvSubBytes(state);
+                        AddRoundKey(state, w + round * 16);
+                        InvMixColumns(state);
+                    }
+                    InvShiftRows(state);
+                    InvSubBytes(state);
+                    AddRoundKey(state, w);
+                    for (int i = 0; i < 16; i++) in[i] = state[i];
+                }
             }
         #pragma endregion AES_CONSTEXPR
 
         #pragma region Helpers
+            #define AES_KEY_MIX(str, line) ((sizeof(str) ^ ((line) * 0x314159)) ^ 0x271828)
+            #define AES_K0(str, line) ((uint8_t)(AES_KEY_MIX(str, line) & 0xFF))
+            #define AES_K1(str, line) ((uint8_t)((AES_KEY_MIX(str, line) >> 8)  & 0xFF))
+            #define AES_K2(str, line) ((uint8_t)((AES_KEY_MIX(str, line) >> 16) & 0xFF))
+            #define AES_K3(str, line) ((uint8_t)((AES_KEY_MIX(str, line) >> 24) & 0xFF))
+
+            #define AES_KEY_MIX_W(str, line) ((sizeof(str) ^ ((line) * 0x618033)) ^ 0x1618033)
+            #define AES_KW0(str, line) ((uint8_t)(AES_KEY_MIX_W(str, line) & 0xFF))
+            #define AES_KW1(str, line) ((uint8_t)((AES_KEY_MIX_W(str, line) >> 8)  & 0xFF))
+            #define AES_KW2(str, line) ((uint8_t)((AES_KEY_MIX_W(str, line) >> 16) & 0xFF))
+            #define AES_KW3(str, line) ((uint8_t)((AES_KEY_MIX_W(str, line) >> 24) & 0xFF))
+
+            template <size_t N, uint8_t K0, uint8_t K1, uint8_t K2, uint8_t K3>
+            struct _AESObfStrs {
+                static constexpr uint8_t key[16] = {
+                    K0, K1, K2, K3, K3, K2, K1, K0,
+                    K0, K0, K1, K1, K2, K2, K3, K3
+                };
+
+                static constexpr array<uint32_t, ((N + 15) / 16 * 4)> encrypt(const char(&plain)[N]) {
+                    constexpr size_t num_blocks = (N + 15) / 16;
+                    array<uint32_t, num_blocks * 4> enc{};
+                    for (size_t b = 0; b < num_blocks; ++b) {
+                        uint8_t block[16] = { 0 };
+                        for (size_t i = 0; i < 16; ++i) {
+                            size_t src_idx = b * 16 + i;
+                            if (src_idx < N) block[i] = (uint8_t)plain[src_idx];
+                        }
+                        aes_constexpr::EncryptBlock(block, key);
+                        for (int i = 0; i < 4; ++i)
+                            enc[b * 4 + i] = (uint32_t)block[i * 4 + 0]
+                                           | ((uint32_t)block[i * 4 + 1] << 8)
+                                           | ((uint32_t)block[i * 4 + 2] << 16)
+                                           | ((uint32_t)block[i * 4 + 3] << 24);
+                    }
+                    return enc;
+                }
+            };
+
+            template <size_t N, uint8_t K0, uint8_t K1, uint8_t K2, uint8_t K3>
+            struct _AESObfWStrs {
+                static constexpr uint8_t key[16] = {
+                    K0, K1, K2, K3, K3, K2, K1, K0,
+                    K0, K0, K1, K1, K2, K2, K3, K3
+                };
+
+                static constexpr size_t BYTE_N     = N * 2;
+                static constexpr size_t NUM_BLOCKS  = (BYTE_N + 15) / 16;
+
+                static constexpr array<uint32_t, NUM_BLOCKS * 4> encrypt(const wchar_t(&plain)[N]) {
+                    array<uint32_t, NUM_BLOCKS * 4> enc{};
+                    for (size_t b = 0; b < NUM_BLOCKS; ++b) {
+                        uint8_t block[16] = {};
+                        for (size_t i = 0; i < 16; ++i) {
+                            size_t byte_idx = b * 16 + i;
+                            if (byte_idx < BYTE_N) {
+                                size_t wc  = byte_idx / 2;
+                                size_t bic = byte_idx % 2;
+                                block[i] = (uint8_t)((plain[wc] >> (bic * 8)) & 0xFF);
+                            }
+                        }
+                        aes_constexpr::EncryptBlock(block, key);
+                        for (int i = 0; i < 4; ++i)
+                            enc[b * 4 + i] = (uint32_t)block[i * 4 + 0]
+                                           | ((uint32_t)block[i * 4 + 1] << 8)
+                                           | ((uint32_t)block[i * 4 + 2] << 16)
+                                           | ((uint32_t)block[i * 4 + 3] << 24);
+                    }
+                    return enc;
+                }
+            };
+
             #define _L_SUB(a, b) ( \
                 ((unsigned int)(a) ^ (unsigned int)(b)) - \
                 (2 * ((~(unsigned int)(a)) & (unsigned int)(b))) \
@@ -180,6 +378,14 @@ constexpr uint32_t _obf_date_hash() {
             #define GEN_SIG(base, line) (uint32_t)((base) ^ ((line) * 0x78654) ^ 0x874275372)
         #pragma endregion Sections
 
+        template <typename T, size_t N, uint8_t K0, uint8_t K1, uint8_t K2, uint8_t K3>
+        constexpr auto _obf_get_encrypted(const T(&str)[N]) {
+            if constexpr (sizeof(T) > 1)
+                return _AESObfWStrs<N, K0, K1, K2, K3>::encrypt(str);
+            else
+                return _AESObfStrs<N, K0, K1, K2, K3>::encrypt(str);
+        }
+
         #define CONCAT2(a,b) a##b
         #define CONCAT(a,b) CONCAT2(a,b)
 
@@ -187,56 +393,89 @@ constexpr uint32_t _obf_date_hash() {
                 ([]() { \
                     struct _OD { \
                         using _CharT = remove_cv_t<remove_reference_t<decltype(str[0])>>; \
-                        static constexpr size_t _N() { return sizeof(str); } \
-                        static_assert((_N() + 15) / 16 <= 40, "[Obfusk8] String exceeds 640-byte limit."); \
-                        static constexpr uint32_t _SEED() { return (uint32_t)(__LINE__ ^ 0x7F3A5C1E) + (uint32_t)_N(); } \
-                        static constexpr auto _xored() { \
-                            constexpr size_t N = _N(); \
-                            array<uint8_t, N> r{}; \
-                            uint32_t s = _SEED(); \
-                            for (size_t i = 0; i < N; ++i) { \
-                                s = s * 0x41C64E6D + 0x3039; \
-                                size_t w_idx = i / sizeof(_CharT); \
-                                size_t b_off = i % sizeof(_CharT); \
-                                r[i] = (uint8_t)((str[w_idx] >> (b_off * 8)) & 0xFF) ^ (uint8_t)(s >> 16); \
-                            } \
-                            return r; \
-                        } \
+                        static constexpr size_t _RAW_SIZE() { return sizeof(str); } \
+                        static constexpr size_t _NUM_CHUNKS() { return (_RAW_SIZE() + 15) / 16; } \
+                        static constexpr size_t _N_CHARS() { return _RAW_SIZE() / sizeof(_CharT); } \
+                        static constexpr uint32_t _BUILD_HASH() { return _obf_date_hash(); } \
+                        static constexpr uint32_t _DATE_MIX() { return _BUILD_HASH() ^ (__LINE__ * 0x9E3779B9u); } \
+                        static constexpr uint8_t _k0() { return (sizeof(_CharT) > 1 ? AES_KW0(str, __LINE__) : AES_K0(str, __LINE__)) ^ ((uint8_t)(_DATE_MIX() & 0xFF)); } \
+                        static constexpr uint8_t _k1() { return (sizeof(_CharT) > 1 ? AES_KW1(str, __LINE__) : AES_K1(str, __LINE__)) ^ ((uint8_t)((_DATE_MIX() >> 8) & 0xFF)); } \
+                        static constexpr uint8_t _k2() { return (sizeof(_CharT) > 1 ? AES_KW2(str, __LINE__) : AES_K2(str, __LINE__)) ^ ((uint8_t)((_DATE_MIX() >> 16) & 0xFF)); } \
+                        static constexpr uint8_t _k3() { return (sizeof(_CharT) > 1 ? AES_KW3(str, __LINE__) : AES_K3(str, __LINE__)) ^ ((uint8_t)((_DATE_MIX() >> 24) & 0xFF)); } \
+                        static constexpr auto _enc() { return _obf_get_encrypted<_CharT, _N_CHARS(), _k0(), _k1(), _k2(), _k3()>(str); } \
                     }; \
-                    \
-                    constexpr size_t _N = _OD::_N(); \
-                    uint8_t _buf[640] = {}; \
+                    static_assert(_OD::_NUM_CHUNKS() <= 40, "[Obfusk8] String exceeds 640-byte limit."); \
+                    uint32_t _ks[4] = { _OD::_k0(), _OD::_k1(), _OD::_k2(), _OD::_k3() }; \
+                    uint8_t runtime_key[16]; \
+                    uint32_t _kx = _OD::_BUILD_HASH(); \
+                    for (int _i = 0; _i < 16; ++_i) { \
+                        int _m = (_i < 4) ? _i : (_i < 8) ? (7 - _i) : (_i < 12) ? ((_i - 8) >> 1) : (((_i - 12) >> 1) + 2); \
+                        _kx = _L_XOR(_kx, _ks[_m]); \
+                        _kx = _L_SUB(_kx, (uint32_t)_i); \
+                        runtime_key[_i] = (uint8_t)(_ks[_m] ^ (_kx & 0xFF)); \
+                        _kx ^= (uint32_t)runtime_key[_i]; \
+                    } \
+                    _kx = _OD::_BUILD_HASH(); \
+                    for (int _i = 0; _i < 16; ++_i) { \
+                        int _m = (_i < 4) ? _i : (_i < 8) ? (7 - _i) : (_i < 12) ? ((_i - 8) >> 1) : (((_i - 12) >> 1) + 2); \
+                        _kx = _L_XOR(_kx, _ks[_m]); \
+                        _kx = _L_SUB(_kx, (uint32_t)_i); \
+                        runtime_key[_i] ^= (uint8_t)(_kx & 0xFF); \
+                        _kx ^= (uint32_t)(_ks[_m] ^ (_kx & 0xFF)); \
+                    } \
                     { \
-                        uint32_t s = _OD::_SEED(); \
-                        auto _xd = _OD::_xored(); \
-                        for (size_t i = 0; i < _N; ++i) { \
-                            s = s * 0x41C64E6D + 0x3039; \
-                            _buf[i] = _xd[i] ^ (uint8_t)(s >> 16); \
+                        uint32_t _op = _L_XOR(_OD::_BUILD_HASH(), _OD::_BUILD_HASH()); \
+                        if (_L_SUB(_op, 1) == 0xFFFFFFFFu) { \
+                            _ks[0] ^= _ks[1]; _ks[1] ^= _ks[0]; _ks[0] ^= _ks[1]; \
                         } \
                     } \
-                    \
-                    size_t _len = _N; \
-                    for (size_t i = 1; i < _len; ++i) \
-                        if (_buf[i] == 0) { _len = i; break; } \
-                    \
-                    if constexpr (sizeof(typename _OD::_CharT) > 1) { \
-                        wstring ws; \
-                        ws.resize(_len / sizeof(wchar_t)); \
-                        for (size_t i = 0; i < ws.size(); ++i) \
-                            ws[i] = (wchar_t)((uint16_t)_buf[i*2] | ((uint16_t)_buf[i*2+1] << 8)); \
-                        volatile uint32_t _v = 0; \
-                        for (size_t i = 0; i < 20 && i < _N; ++i) _v ^= _buf[i]; \
-                        (void)_v; \
-                        return ws; \
-                    } else { \
-                        string _result((char*)_buf, _len); \
-                        volatile uint32_t _v = 0; \
-                        for (size_t i = 0; i < 20 && i < _N; ++i) _v ^= _buf[i]; \
-                        (void)_v; \
-                        return _result; \
-                    } \
+                    return _obf_decrypt_and_clear<typename _OD::_CharT>( \
+                        _OD::_enc().data(), _OD::_NUM_CHUNKS(), _OD::_RAW_SIZE(), \
+                        runtime_key, _ks); \
                 })()
 
         #define OBFUSCATE_STRING(str) _INTERNAL_OBF(str)
         #define OBFUSCATE_WSTRING(str) _INTERNAL_OBF(str)
+
+        #pragma region SHARED_RUNTIME_DECRYPT
+            NOOPT
+            template<typename _CharT>
+            static conditional_t<(sizeof(_CharT) > 1), wstring, string>
+            _obf_decrypt_and_clear(const uint32_t* enc_data, size_t num_chunks, size_t raw_size,
+                                   uint8_t* runtime_key, uint32_t* _ks) {
+                uint8_t out_raw[640];
+                for (size_t chunk = 0; chunk < num_chunks; ++chunk) {
+                    uint8_t block[16];
+                    for (int i = 0; i < 4; ++i) {
+                        uint32_t val = enc_data[chunk * 4 + i];
+                        block[i*4+0] = (uint8_t)(val & 0xFF);
+                        block[i*4+1] = (uint8_t)((val >> 8) & 0xFF);
+                        block[i*4+2] = (uint8_t)((val >> 16) & 0xFF);
+                        block[i*4+3] = (uint8_t)((val >> 24) & 0xFF);
+                    }
+                    aes_constexpr::DecryptBlock(block, runtime_key);
+                    for (size_t j = 0; j < 16; ++j)
+                        out_raw[chunk * 16 + j] = block[j];
+                }
+                using result_t = conditional_t<(sizeof(_CharT) > 1), wstring, string>;
+                result_t result;
+                if constexpr (sizeof(_CharT) > 1) {
+                    size_t wlen = raw_size / sizeof(wchar_t);
+                    if (wlen > 0) --wlen;
+                    result.resize(wlen);
+                    for (size_t i = 0; i < wlen; ++i)
+                        result[i] = (wchar_t)((uint16_t)out_raw[i*2] | ((uint16_t)out_raw[i*2+1] << 8));
+                } else {
+                    size_t final_len = raw_size;
+                    for (size_t i = 1; i < final_len; ++i)
+                        if (out_raw[i] == 0) { final_len = i; break; }
+                    result = string((char*)out_raw, final_len);
+                }
+                memset(runtime_key, 0, 16);
+                memset(out_raw, 0, sizeof(out_raw));
+                memset(_ks, 0, 16);
+                return result;
+            }
+            OPT
+        #pragma endregion SHARED_RUNTIME_DECRYPT
 OPT
