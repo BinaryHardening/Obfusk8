@@ -114,7 +114,8 @@ NOOPT
         typedef NTSTATUS (NTAPI * Proto_Syscall)
         (
             void* a1, void* a2, void* a3, void* a4,
-            void* a5, void* a6, void* a7, void* a8, void* a9, void* a10
+            void* a5, void* a6, void* a7, void* a8,
+            void* a9, void* a10, void* a11, void* a12
         );
 
         class SyscallGate
@@ -167,16 +168,16 @@ NOOPT
 
                 Proto_Syscall fn = (Proto_Syscall)_stub_mem;
 
-                void* arg_ptrs[10] = { 0 };
+                void* arg_ptrs[12] = { 0 };
                 int i = 0;
                 auto unpack = [&](auto arg) {
-                    if (i < 10) arg_ptrs[i++] = (void*)(uintptr_t)arg;
+                    if (i < 12) arg_ptrs[i++] = (void*)(uintptr_t)arg;
                 };
                 (unpack(args), ...);
                 return fn(
                     arg_ptrs[0], arg_ptrs[1], arg_ptrs[2], arg_ptrs[3],
                     arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7],
-                    arg_ptrs[8], arg_ptrs[9]
+                    arg_ptrs[8], arg_ptrs[9], arg_ptrs[10], arg_ptrs[11]
                 );
             }
         };
